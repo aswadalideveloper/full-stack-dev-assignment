@@ -55,7 +55,7 @@ const SignInForm = () => {
         setError(result.error);
       } else if (result?.success) {
         if (result.hasMovies === false) {
-          await router.push("/empty");
+          await router.push("/movies/start-collection");
         } else {
           await router.push("/movies");
         }

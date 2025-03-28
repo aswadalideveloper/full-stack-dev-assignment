@@ -29,7 +29,7 @@ export default function SignUpPage() {
         if (result.hasMovies) {
           router.push("/movies");
         } else {
-          router.push("/empty");
+          router.push("/movies/start-collection");
         }
       }
     } catch (err) {
