@@ -1,14 +1,10 @@
+import Background from "@/components/ui/background";
+import SignInForm from "@/components/SignIn/SignIn";
+
 export default function Home() {
   return (
-    <div
-      style={{
-        maxWidth: 1280,
-        margin: "0 auto",
-        padding: "2rem",
-        textAlign: "center",
-      }}
-    >
-      Full Stack Assignment
-    </div>
+    <Background>
+      <SignInForm />
+    </Background>
   );
 }
