@@ -9,6 +9,8 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { signIn } from "@/app/actions/auth";
+import Link from "next/link";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -20,6 +22,7 @@ type SignInSchema = z.infer<typeof signInSchema>;
 
 const SignInForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
   const {
@@ -37,13 +40,28 @@ const SignInForm = () => {
 
   const onSubmit = async (data: SignInSchema) => {
     setIsLoading(true);
+    setError("");
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Form data:", data);
-      router.push("/movies");
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      if (data.rememberMe) {
+        formData.append("rememberMe", "on");
+      }
+
+      const result = await signIn(formData);
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.success) {
+        if (result.hasMovies === false) {
+          await router.push("/empty");
+        } else {
+          await router.push("/movies");
+        }
+      }
     } catch (error) {
-      console.error("Sign in error:", error);
+      setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +74,12 @@ const SignInForm = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full md:max-w-[300px] space-y-6"
       >
+        {error && (
+          <div className="p-3 rounded bg-red-500/10 border border-red-500 text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+
         <div className="space-y-2">
           <Input
             {...register("email")}
@@ -106,6 +130,13 @@ const SignInForm = () => {
         >
           {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Login"}
         </Button>
+
+        <p className="text-center text-sm text-white/70">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
       </form>
     </div>
   );
