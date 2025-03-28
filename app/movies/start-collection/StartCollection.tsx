@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Background from "@/components/ui/background";
 import { useRouter } from "next/navigation";
 
-export default function EmptyContent() {
+export default function StartCollection() {
   const router = useRouter();
 
   return (
