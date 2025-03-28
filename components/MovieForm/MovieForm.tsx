@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react"; // Removed useEffect since it's not used
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Background from "@/components/ui/background";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 
 interface MovieFormProps {
   mode: "add" | "edit";
@@ -14,17 +14,21 @@ interface MovieFormProps {
     year: string;
     image: string;
   };
-  onSubmit?: (data: {
+  onSubmit: (data: {
     title: string;
     year: string;
     image: string | null;
-  }) => void;
+  }) => void; // Made onSubmit required since it's always used
+  error?: string; // Added to receive error from parent
+  isLoading?: boolean; // Added to receive loading state from parent
 }
 
 export default function MovieForm({
   mode,
   initialData,
   onSubmit,
+  error: externalError,
+  isLoading: externalLoading = false,
 }: MovieFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialData?.title || "");
@@ -69,9 +73,7 @@ export default function MovieForm({
   };
 
   const handleSubmit = () => {
-    if (onSubmit) {
-      onSubmit({ title, year, image: imagePreview });
-    }
+    onSubmit({ title, year, image: imagePreview });
   };
 
   return (
@@ -81,6 +83,12 @@ export default function MovieForm({
           <h2 className="text-3xl md:text-5xl font-semibold text-white mb-20 md:mb-32">
             {mode === "add" ? "Create a new Movie" : "Edit Movie"}
           </h2>
+
+          {externalError && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500 rounded text-red-500">
+              {externalError}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-32">
             {/* Image Upload */}
@@ -114,6 +122,7 @@ export default function MovieForm({
                   className="hidden"
                   accept="image/*"
                   onChange={handleFileChange}
+                  disabled={externalLoading}
                 />
               </div>
             </div>
@@ -127,6 +136,7 @@ export default function MovieForm({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="h-[45px] bg-input rounded-lg text-white border-none placeholder:text-white/70 transition duration-300 ease-in-out"
+                  disabled={externalLoading}
                 />
               </div>
 
@@ -137,6 +147,7 @@ export default function MovieForm({
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   className="h-[45px] bg-input rounded-lg text-white border-none placeholder:text-white/70 transition duration-300 ease-in-out w-1/2"
+                  disabled={externalLoading}
                 />
               </div>
 
@@ -145,14 +156,22 @@ export default function MovieForm({
                   variant="outline"
                   className="flex-1 h-[45px] bg-transparent rounded-lg text-white border-white/20 transition duration-300 ease-in-out transform hover:bg-white hover:scale-105"
                   onClick={() => router.back()}
+                  disabled={externalLoading}
                 >
                   Cancel
                 </Button>
                 <Button
                   className="flex-1 h-[45px] bg-primary hover:bg-primary/90 text-white rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
                   onClick={handleSubmit}
+                  disabled={externalLoading}
                 >
-                  {mode === "add" ? "Submit" : "Update"}
+                  {externalLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : mode === "add" ? (
+                    "Submit"
+                  ) : (
+                    "Update"
+                  )}
                 </Button>
               </div>
             </div>
